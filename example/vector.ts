@@ -141,8 +141,30 @@ const temporalControl = new TemporalControl(temporalFrames, {
 
 map.addControl(temporalControl);
 
-const colorbar = new ColorBar(null, {
-	title: "Wave Height",
+const windColors = {
+  'fill-opacity': 1.0,
+  'fill-color': [
+    'step',
+    ['get', 'speed'],
+    '#ceffff',
+    0.1250, '#9dfffe',
+    0.1875, '#9BCDFD',
+    0.2500, '#CEFECE',
+    0.3125, '#FFFECE',
+    0.3750, '#FECC9D',
+    0.4375, '#FD9D70',
+    0.5000, '#FD673D',
+    0.5625, '#FC361D',
+    0.6250, '#97040B',
+    0.6875, '#ff99ff',
+    0.7500, '#ff66ff',
+    0.8125, '#cc02ff',
+    0.8750, '#9900cc',
+  ],
+};
+
+const colorbar = new ColorBar(windColors, {
+	title: "Wind Speed",
   unit: "m",
   position: "top-left",
 });

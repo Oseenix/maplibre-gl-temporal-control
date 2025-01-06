@@ -216,14 +216,13 @@ export default class ColorBar implements IControl {
     const totalMargin = 4 * this.colorSteps.length;
     const stepsHeight = containerHeight - this.titleDiv.offsetHeight - unitHeight - totalMargin;
 
-    const stepHeight = Math.max(Math.floor(stepsHeight / this.colorSteps.length), 10);
-    const showInterval = Math.ceil(this.colorSteps.length / (stepsHeight / 30));
+    const stepHeight = Math.max(Math.floor(stepsHeight / this.colorSteps.length), 12);
+    const showInterval = Math.ceil(this.colorSteps.length / (stepsHeight / 20));
 
     return { stepHeight, showInterval };
   }
 
   public update(): void {
-    // requestAnimationFrame(() => {
     const { stepHeight, showInterval } = this.calculateHeights();
 
     this.legendItems.forEach((legendItem, index) => {
@@ -243,7 +242,6 @@ export default class ColorBar implements IControl {
         label.textContent = "";
       }
     });
-    // });
   }
 
   onAdd(map: Map): HTMLElement {
@@ -276,20 +274,25 @@ export default class ColorBar implements IControl {
    */
   getColorSteps(): ColorStep[] {
     const colorSpec = this.propertySpec["fill-color"];
-    const colorSteps = colorSpec.default;
+    if (!colorSpec) {
+      throw new Error("Missing 'fill-color' specification.");
+    }
+  
+    const colorSteps = colorSpec.default || colorSpec;
     const stepType = colorSteps[0];
+  
     if (stepType !== "step") {
       throw new Error("Only 'step' expressions are supported.");
     }
-
+  
     const steps: ColorStep[] = [];
     const [, , defaultColor, ...pairs] = colorSteps;
-
+  
+    const maxSpeed: number = this.options?.max || 30;
+  
     // Add default color for speed < first threshold
     steps.push({ speed: 0, color: defaultColor });
-
-    const maxSpeed: number = this.options.max || 30;
-
+  
     // Extract speed thresholds and colors
     for (let i = 0; i < pairs.length; i += 2) {
       const speed = pairs[i] as number;
@@ -297,9 +300,11 @@ export default class ColorBar implements IControl {
       const color = pairs[i + 1] as string;
       steps.push({ speed: absSpeed, color });
     }
-
-    return steps.reverse();
+  
+    // Sort steps by speed in ascending order
+    return steps.sort((a, b) => b.speed - a.speed);
   }
+
 
   /**
    * Sets a property using a Mapbox style expression.
