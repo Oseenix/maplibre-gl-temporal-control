@@ -7,7 +7,7 @@ export default defineConfig({
     emptyOutDir: true,
 		lib: {
 			entry: 'src/index.ts',
-			name: 'TemporalControl',
+			name: 'MapLibreControls',
 			fileName: 'index',
 		},
 		rollupOptions: {
