@@ -5,7 +5,7 @@ import maplibregl, {
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import TemporalControl from '../src';
+import { TemporalControl } from '../src';
 
 import { nowcast } from 'jma-utils';
 
