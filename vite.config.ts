@@ -4,6 +4,7 @@ export default defineConfig({
 	build: {
 		outDir: 'build',
 		sourcemap: true,
+    emptyOutDir: true,
 		lib: {
 			entry: 'src/index.ts',
 			name: 'TemporalControl',

@@ -4,7 +4,7 @@ import maplibregl, {
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import TemporalControl from '../src';
+import { TemporalControl, ColorBar } from '../src';
 
 const temporalLayerNames = [
 	'201901',
@@ -138,4 +138,14 @@ const temporalControl = new TemporalControl(temporalFrames, {
 	interval: 1000,
 	performance: true,
 });
+
 map.addControl(temporalControl);
+
+const colorbar = new ColorBar(null, {
+	title: "Wave Height",
+  unit: "m",
+  position: "top-left",
+});
+
+map.addControl(colorbar);
+
