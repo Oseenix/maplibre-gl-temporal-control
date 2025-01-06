@@ -1,0 +1,45 @@
+{
+	"name": "maplibre-gl-temporal-control",
+	"type": "module",
+	"version": "1.2.0",
+	"description": "Temporal Control plugin for Maplibre GL JS",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "vite build -c vite.config.example.ts",
+		"build:pkg": "vite build && tsc",
+		"prepare": "npm run build:pkg",
+		"dev": "vite -c vite.config.example.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/mug-jp/maplibre-gl-temporal-controller.git"
+	},
+	"author": "Kanahiro Iguchi <kanahiro.iguchi@gmail.com> (https://github.com/Kanahiro)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/mug-jp/maplibre-gl-temporal-controller/issues"
+	},
+	"homepage": "https://github.com/mug-jp/maplibre-gl-temporal-controller#readme",
+	"devDependencies": {
+		"jma-utils": "^0.1.0",
+		"maplibre-gl": "5.0.0-pre.10",
+		"rollup-plugin-visualizer": "^5.13.1",
+		"typescript": "^4.9.5",
+		"vite": "^6.0.6"
+	},
+	"main": "./build/index.umd.cjs",
+	"module": "./build/index.js",
+	"types": "./build/index.d.ts",
+	"files": [
+		"build"
+	],
+	"exports": {
+		".": {
+			"require": "./build/index.umd.cjs",
+			"import": "./build/index.js"
+		}
+	},
+	"dependencies": {
+		"@maplibre/maplibre-gl-style-spec": "^22.0.1"
+	}
+}
