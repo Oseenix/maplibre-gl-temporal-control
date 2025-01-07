@@ -13,6 +13,7 @@ type Options = {
   unit: string;
 	position?: ControlPosition;
   width?: string;  // Optional width with a default value
+  height?: string;  // Optional width with a default value
   max?: number;    // Optional max with a default value
 };
 
@@ -89,12 +90,14 @@ export default class ColorBar implements IControl {
 
 		this.options = {
 	    position: "top-left",
-      width: "62px", // Default width
-      max: 30,       // Default max
-      ...options,    // Override with user-provided options
+      width: "56px",    // Default width
+      height: "272px",  // Default width
+      max: 30,          // Default max
+      ...options,       // Override with user-provided options
     };
 
     this.colorSteps = this.getColorSteps();
+
     const { outContainer, innerContainer } = this.createContainer();
     this.outContainer = outContainer;
     this.container = innerContainer;
@@ -104,13 +107,30 @@ export default class ColorBar implements IControl {
     this.container.appendChild(this.titleDiv);
     this.container.appendChild(this.unitDiv);
 
-    this.initializeLegendItems();
-    this.update();
   }
 
 	private getWidth(): string {
-		return this.options.width || "62px";
+		return this.options.width || "52px";
 	}
+
+	private getHeight(): string {
+		return this.options.height || "272px";
+	}
+
+  private getHeightInPixels(): number {
+    const heightExpression = this.getHeight();
+    if (heightExpression.endsWith('px')) {
+      return parseFloat(heightExpression);
+    }
+
+    if (heightExpression.endsWith('%')) {
+      const parentHeight = this.outContainer.offsetHeight;
+      const percentage = parseFloat(heightExpression) / 100;
+      return parentHeight * percentage;
+    }
+
+    return 272;
+  }
 
 	private createContainer(): { outContainer: HTMLElement; innerContainer: HTMLElement } {
 	  // Outer container
@@ -118,18 +138,22 @@ export default class ColorBar implements IControl {
 	  outContainer.classList.add("maplibregl-ctrl");
 	
 	  // Outer container styles
+	  outContainer.style.height = "100%"; // Fixed or dynamically adjustable height
 	  outContainer.style.display = "flex";
 	  outContainer.style.flexDirection = "column";
 	  outContainer.style.alignItems = "center";
     outContainer.style.backgroundColor = "transparent"; 
 
 	  // Inner container
+    const group = this.options.position?.endsWith("left")
+     ? "map-colorbar-left-group"
+     : "map-colorbar-right-group";
 	  const innerContainer = document.createElement("div");
-	  innerContainer.classList.add("map-colorbar-group");
+	  innerContainer.classList.add(group);
 	
 	  // Inner container styles
-	  innerContainer.style.width = this.getWidth(); // Fixed or dynamically adjustable width
-	  innerContainer.style.height = "calc(min((100% - 29px), 272px))"; // Fixed or dynamically adjustable height
+	  innerContainer.style.width = this.getWidth();
+	  innerContainer.style.height = `calc(min((100% - 29px), ${this.getHeight()}))`;
 	  innerContainer.style.backgroundColor = "rgba(0, 36, 71, 0.8)";
 	  innerContainer.style.display = "flex";
 	  innerContainer.style.flexDirection = "column";
@@ -176,15 +200,14 @@ export default class ColorBar implements IControl {
     colorBox.classList.add("map_colorbar_color_box");
     colorBox.style.width = "12px";
     colorBox.style.backgroundColor = color;
-    // colorBox.style.border = "0.5px solid rgba(255, 255, 255, 0.8)";
     return colorBox;
   }
 
   private createLabel(_step: ColorStep): HTMLElement {
     const label = document.createElement("div");
     label.classList.add("map_colorbar_label");
-    label.style.marginLeft = "2px";
-    label.style.marginRight = "1px";
+    label.style.marginLeft = "0px";
+    label.style.marginRight = "2px";
     label.style.color = "white";
     label.style.fontSize = "10px";
     label.textContent = "";
@@ -211,35 +234,38 @@ export default class ColorBar implements IControl {
   }
 
   private calculateHeights(): { stepHeight: number; showInterval: number } {
-    const containerHeight = this.container.getBoundingClientRect().height;
-    const unitHeight = 32;
-    const totalMargin = 4 * this.colorSteps.length;
-    const stepsHeight = containerHeight - this.titleDiv.offsetHeight - unitHeight - totalMargin;
+    const h = this.getHeightInPixels();
+    const containerHeight = (this.container.getBoundingClientRect().height
+                               ? this.container.getBoundingClientRect().height
+                               : h);
+    const totalMargin = 6 + 8 + 8;
+    const stepsHeight = (containerHeight - this.titleDiv.offsetHeight
+                        - this.unitDiv.offsetHeight - totalMargin);
 
-    const stepHeight = Math.max(Math.floor(stepsHeight / this.colorSteps.length), 12);
-    const showInterval = Math.ceil(this.colorSteps.length / (stepsHeight / 20));
+    const stepHeight = Math.max(Math.floor(stepsHeight / this.colorSteps.length), 5);
+    const showInterval = Math.ceil(20 * this.colorSteps.length / stepsHeight);
 
     return { stepHeight, showInterval };
   }
 
   public update(): void {
+    this.updateInnerContainerStyle(this.outContainer, this.container);
     const { stepHeight, showInterval } = this.calculateHeights();
 
-    this.legendItems.forEach((legendItem, index) => {
+    [...this.legendItems].reverse().forEach((legendItem, index) => {
       const colorBox = legendItem.querySelector(".map_colorbar_color_box") as HTMLElement;
       const label = legendItem.querySelector(".map_colorbar_label") as HTMLElement;
 
       legendItem.style.height = `${stepHeight}px`;
       colorBox.style.height = `${stepHeight}px`;
+      let reverseIndex = this.colorSteps.length - 1 - index;
 
       if (
-        index === 0 || 
-        index === this.colorSteps.length - 1 || 
-        index % showInterval === 0
+        index % showInterval !== 0
       ) {
-        label.textContent = `${this.colorSteps[index].speed.toFixed(2)}`;
-      } else {
         label.textContent = "";
+      } else {
+        label.textContent = `- ${this.colorSteps[reverseIndex].speed.toFixed(2)}`;
       }
     });
   }
@@ -248,14 +274,25 @@ export default class ColorBar implements IControl {
     this.map = map;
 		map.getContainer().appendChild(this.outContainer);
 
+    this.initializeLegendItems();
+    this.update();
+
 		this.map.once('styledata', () => {
 			this.refresh();
 		});
+
+    this.map.on('resize', () => {
+      this.update();
+    });
 
 		return this.outContainer;
   }
 
   onRemove(): void {
+    if (this.map) {
+      this.map.off('resize', this.update);
+      this.map.off('styledata', this.refresh);
+    }
     this.container.parentNode?.removeChild(this.container);
     this.outContainer.parentNode?.removeChild(this.container);
 		this.map = undefined;
@@ -265,8 +302,70 @@ export default class ColorBar implements IControl {
 	}
 
   getDefaultPosition(): ControlPosition {
-    return "top-left";
+    return this.options.position || 'top-left';
   };
+
+	updateInnerContainerStyle(outContainer: HTMLElement, container: HTMLElement): void {
+    if (!this.map) {
+      return;
+    }
+    const parentContainer = this.map.getContainer();
+	  const parentWidth = parentContainer.offsetWidth;
+	  const parentHeight = parentContainer.offsetHeight;
+
+    outContainer.style.height = `${parentHeight}px`;
+
+	  // Default styles
+	  let marginTop = 10;
+	  let marginBottom = 10;
+		let defMarginLeft = Math.max(
+		  10,
+		  parseFloat(
+		    getComputedStyle(parentContainer)
+					.getPropertyValue('env(safe-area-inset-left)') || '0'
+		  )
+		);
+    let defMarginRight = Math.max(
+		  10,
+		  parseFloat(
+		    getComputedStyle(parentContainer)
+					.getPropertyValue('env(safe-area-inset-right)') || '0'
+		  )
+		);
+		let marginLeft = defMarginLeft;
+		let marginRight = defMarginRight;
+	
+	  // Update styles based on parent dimensions
+	  if (parentWidth >= 480) {
+	    marginTop = 15;
+	    marginBottom = 15;
+	    marginLeft = Math.max(15, defMarginLeft);
+	    marginRight = Math.max(15, defMarginRight);
+	  }
+
+	  if (parentWidth >= 992 && parentHeight >= 992) {
+	    marginTop = 40;
+	    marginBottom = 40;
+	    marginLeft = Math.max(40, defMarginLeft);
+	    marginRight = Math.max(40, defMarginRight);
+    }
+
+    if (this.options.position?.endsWith("left")) {
+      container.style.marginLeft = `${marginLeft}px`;
+      container.style.marginRight = `${defMarginRight}px`;
+    } else {
+      container.style.marginLeft = `${defMarginLeft}px`;
+      container.style.marginRight = `${marginRight}px`;
+		}
+
+    // Apply styles to innerContainer
+    container.style.marginTop = `${marginTop}px`;
+    container.style.marginBottom = `${marginBottom}px`;
+  
+    container.style.alignItems = 'flex-start';
+    container.style.display = 'flex'; // Ensures `align-items` works
+	  container.style.height = `calc(min((100% - 29px), ${this.getHeight()}))`;
+  }
 
   /**
    * Parses the "fill-color" property and extracts speed-to-color mappings.
