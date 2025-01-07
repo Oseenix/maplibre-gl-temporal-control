@@ -5,6 +5,7 @@ type Options = {
     unit: string;
     position?: ControlPosition;
     width?: string;
+    height?: string;
     max?: number;
 };
 interface ColorStep {
@@ -23,6 +24,8 @@ export default class ColorBar implements IControl {
     propertySpec: Record<string, any>;
     constructor(propertySpec: any, options: Options);
     private getWidth;
+    private getHeight;
+    private getHeightInPixels;
     private createContainer;
     private createTitleDiv;
     private createUnitDiv;
@@ -35,6 +38,7 @@ export default class ColorBar implements IControl {
     onRemove(): void;
     refresh(): void;
     getDefaultPosition(): ControlPosition;
+    updateInnerContainerStyle(outContainer: HTMLElement, container: HTMLElement): void;
     /**
      * Parses the "fill-color" property and extracts speed-to-color mappings.
      * @returns An array of speed thresholds and their corresponding colors.
