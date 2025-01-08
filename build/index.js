@@ -3727,6 +3727,8 @@ class Xr {
       // Default width
       max: 30,
       // Default max
+      decimal: 1,
+      // Default max
       ...t
       // Override with user-provided options
     }, this.colorSteps = this.getColorSteps();
@@ -3791,7 +3793,7 @@ class Xr {
       const s = r.querySelector(".map_colorbar_color_box"), o = r.querySelector(".map_colorbar_label");
       r.style.height = `${e}px`, s.style.height = `${e}px`;
       let a = this.colorSteps.length - 1 - i;
-      i % t !== 0 ? o.textContent = "" : o.textContent = `- ${this.colorSteps[a].speed.toFixed(2)}`;
+      i % t !== 0 ? o.textContent = "" : o.textContent = `- ${this.colorSteps[a].speed.toFixed(this.options.decimal)}`;
     });
   }
   onAdd(e) {

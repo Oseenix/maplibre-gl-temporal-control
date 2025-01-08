@@ -7,6 +7,7 @@ type Options = {
     width?: string;
     height?: string;
     max?: number;
+    decimal?: number;
 };
 interface ColorStep {
     speed: number;
