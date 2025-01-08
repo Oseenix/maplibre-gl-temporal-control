@@ -15,6 +15,7 @@ type Options = {
   width?: string;  // Optional width with a default value
   height?: string;  // Optional width with a default value
   max?: number;    // Optional max with a default value
+  decimal?: number;
 };
 
 interface ColorStep {
@@ -93,6 +94,7 @@ export default class ColorBar implements IControl {
       width: "56px",    // Default width
       height: "272px",  // Default width
       max: 30,          // Default max
+      decimal: 1,          // Default max
       ...options,       // Override with user-provided options
     };
 
@@ -265,7 +267,8 @@ export default class ColorBar implements IControl {
       ) {
         label.textContent = "";
       } else {
-        label.textContent = `- ${this.colorSteps[reverseIndex].speed.toFixed(2)}`;
+        label.textContent = `- ${this.colorSteps[reverseIndex]
+                                  .speed.toFixed(this.options.decimal)}`;
       }
     });
   }
