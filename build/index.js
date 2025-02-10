@@ -3805,7 +3805,7 @@ class Xr {
   }
   onRemove() {
     var e, t;
-    this.map && (this.map.off("resize", this.update), this.map.off("styledata", this.refresh)), (e = this.container.parentNode) == null || e.removeChild(this.container), (t = this.outContainer.parentNode) == null || t.removeChild(this.container), this.map = void 0;
+    this.map && (this.map.off("resize", this.update), this.map.off("styledata", this.refresh)), (e = this.container.parentNode) == null || e.removeChild(this.container), (t = this.outContainer.parentNode) == null || t.removeChild(this.outContainer), this.map = void 0;
   }
   refresh() {
   }
