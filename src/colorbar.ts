@@ -9,13 +9,13 @@ import { expression } from "@maplibre/maplibre-gl-style-spec";
 import type { Expression } from "@maplibre/maplibre-gl-style-spec";
 
 type Options = {
-  title: string;
-  unit: string;
-	position?: ControlPosition;
-  width?: string;  // Optional width with a default value
-  height?: string;  // Optional width with a default value
-  max?: number;    // Optional max with a default value
-  decimal?: number;
+  title: string;    // show title at the top of the color bar
+  unit: string;     // show unit at the bottom of the color bar
+	position?: ControlPosition;   // Optional position with a default top-left position
+  width?: string;   // Optional width with a default 56px
+  height?: string;  // Optional width with a default 272px
+  max?: number;     // Optional max with a default 30
+  decimal?: number; // Optional decimal with a default 1
 };
 
 interface ColorStep {
@@ -297,7 +297,7 @@ export default class ColorBar implements IControl {
       this.map.off('styledata', this.refresh);
     }
     this.container.parentNode?.removeChild(this.container);
-    this.outContainer.parentNode?.removeChild(this.container);
+    this.outContainer.parentNode?.removeChild(this.outContainer);
 		this.map = undefined;
   }
 
