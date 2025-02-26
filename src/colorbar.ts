@@ -296,7 +296,7 @@ export default class ColorBar implements IControl {
       this.map.off('resize', this.update);
       this.map.off('styledata', this.refresh);
     }
-    this.container.parentNode?.removeChild(this.container);
+    // this.container.parentNode?.removeChild(this.container);
     this.outContainer.parentNode?.removeChild(this.outContainer);
 		this.map = undefined;
   }

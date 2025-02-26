@@ -4,7 +4,7 @@ import maplibregl, {
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { TemporalControl, ColorBar } from '../src';
+import { TemporalControl, ColorBar, MsgCtl } from '../src';
 
 const temporalLayerNames = [
 	'201901',
@@ -212,12 +212,18 @@ const colorbar = new ColorBar(windColors, {
 
 map.addControl(colorbar);
 
-const colorbar2 = new ColorBar(waveColors, {
-	title: "Wave",
-  unit: "m",
-  max: 16,
-  position: "top-right",
+const msgShow = new MsgCtl({
+  position: "bottom-right",
+  innerHTML: '<strong>Local Model</strong>',
+  style: {
+    color: '#fff',
+    fontSize: '14px',
+    padding: '4px',
+    display: 'flex',         // Enable Flexbox for centering
+    justifyContent: 'center', // Center horizontally
+    alignItems: 'center',     // Center vertically
+  }, 
 });
 
-map.addControl(colorbar2);
+map.addControl(msgShow);
 
